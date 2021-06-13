@@ -212,6 +212,30 @@ class Pay {
     return JSON.parse(decoded);
   }
   /**
+   * 签名验证
+   * @param timestamp 应答时间戳
+   * @param nonce 应答随机串
+   * @param signature 应答签名
+   * @param body 应答报文主体
+   */
+  public wechatpay_verify(
+    timestamp: string | number,
+    nonce: string,
+    signature: string,
+    body: string | Record<string, any>
+  ): Boolean {
+    const data = [timestamp, nonce, JSON.stringify(body)].join('\n');
+
+    const verify = crypto.createVerify('RSA-SHA256');
+
+    verify.update(data);
+
+    const sign = Buffer.from(signature, 'base64').toString()
+    const publicKey: any = this.publicKey;
+
+    return verify.verify(publicKey, sign, 'base64');
+  }
+  /**
    * 参数初始化
    */
   private init(method: string, url: string, params?: object) {
